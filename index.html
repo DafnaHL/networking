@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק היכרות צבעוני לערב נטוורקינג</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(45deg, #f3ec78, #af4261);
+            transition: background 0.5s ease;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 80%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        #startButton, #question {
+            margin: 1rem 0;
+        }
+        #startButton {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1.2rem;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #startButton:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+        }
+        #question {
+            font-size: 1.5rem;
+            color: #333;
+            padding: 1rem;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease;
+        }
+        #timer {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-top: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes colorChange {
+            0% { color: #ff4136; }
+            25% { color: #ff851b; }
+            50% { color: #2ecc40; }
+            75% { color: #0074d9; }
+            100% { color: #b10dc9; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        .color-change {
+            animation: colorChange 10s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="color-change">משחק היכרות לערב נטוורקינג</h1>
+        <button id="startButton">התחלה</button>
+        <div id="question" style="display:none;"></div>
+        <div id="timer" style="display:none;"></div>
+    </div>
+
+    <script>
+        const questions = [
+            "מה הפרויקט הכי מעניין שעבדת עליו לאחרונה?",
+            "איזו טכנולוגיה חדשה את/ה הכי מתרגש/ת לגביה?",
+            "מה הביא אותך לתחום הטכנולוגיה?",
+            "אם היית יכול/ה ללמוד שפת תכנות חדשה ביום אחד, איזו היית בוחר/ת?",
+            "מה הטיפ הכי טוב שקיבלת כשהתחלת בקריירה שלך?",
+            "איזה אפליקציה או כלי טכנולוגי לא יכולת לחיות בלעדיו?",
+            "מה הדבר הכי מפתיע שלמדת בעבודה שלך?",
+            "אם היית יכול/ה לפתור בעיה אחת בעולם הטכנולוגיה, מה היא הייתה?",
+            "מה החלום המקצועי שלך לעתיד?",
+            "איזה ספר או פודקאסט בתחום הטכנולוגיה את/ה ממליץ/ה?",
+            "מה הדבר הכי מצחיק שקרה לך בעבודה?",
+            "אם היית יכול/ה לעבוד עם כל חברת טכנולוגיה בעולם, איזו היית בוחר/ת ולמה?",
+            "מה הפרויקט האישי שאת/ה הכי גאה בו?",
+            "איך את/ה רואה את עתיד התעשייה שלנו בעוד 10 שנים?",
+            "מה הדבר הכי חשוב שלמדת מהמנטור/ית שלך?"
+        ];
+
+        const startButton = document.getElementById('startButton');
+        const questionElement = document.getElementById('question');
+        const timerElement = document.getElementById('timer');
+        let timerInterval;
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function getRandomColor() {
+            return `hsl(${Math.random() * 360}, 100%, 75%)`;
+        }
+
+        function changeBackgroundColor() {
+            document.body.style.background = `linear-gradient(45deg, ${getRandomColor()}, ${getRandomColor()})`;
+        }
+
+        function startGame() {
+            shuffleArray(questions);
+            showQuestion();
+            startTimer();
+            startButton.style.display = 'none';
+            questionElement.style.display = 'block';
+            timerElement.style.display = 'block';
+            changeBackgroundColor();
+        }
+
+        function showQuestion() {
+            if (questions.length > 0) {
+                questionElement.textContent = questions.pop();
+                questionElement.classList.remove('fade-in');
+                void questionElement.offsetWidth; // Trigger reflow
+                questionElement.classList.add('fade-in');
+                changeBackgroundColor();
+            } else {
+                endGame();
+            }
+        }
+
+        function startTimer() {
+            let timeLeft = 180; // 3 minutes in seconds
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                if (timeLeft === 0) {
+                    endGame();
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            questionElement.style.display = 'none';
+            timerElement.style.display = 'none';
+            startButton.style.display = 'inline-block';
+            startButton.textContent = 'התחל מחדש';
+            changeBackgroundColor();
+        }
+
+        startButton.addEventListener('click', startGame);
+        questionElement.addEventListener('click', showQuestion);
+    </script>
+</body>
+</html>
